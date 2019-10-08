@@ -4,7 +4,7 @@ import xmltodict
 import requests
 import re
 import csv
-
+import sys
 
 def fetchArticle(database, articleId, fileName):
     url = 'https://www.ncbi.nlm.nih.gov/' + database + '/' + articleId
@@ -40,7 +40,6 @@ def fetchArticle(database, articleId, fileName):
                                             affl.append(aElem)
                                         except:
                                             continue
-                                    
                                     useDiv = False
                                     try:
                                       useDiv = max(sup) == len(affl)
@@ -61,16 +60,14 @@ def fetchArticle(database, articleId, fileName):
                                         except:
                                             continue
                                         continue
-                                    
-   
+
 def fetchIdList(database, term, count):
     url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?' + 'db=' + database + '&term=' + term + '&retmax=' + str(count)
     r = requests.get(url)
     page = xmltodict.parse(r.content)
     return page['eSearchResult']['IdList']['Id']
 
-def main():
-  term = 'msc bone differentiation' 
+def main(term):
   fileName = term +  ".csv"
   with open(fileName, 'w') as csvfile:
     fieldnames = ['name', 'affiliation', 'email']
@@ -79,6 +76,10 @@ def main():
     for i in range(0, len(idList)):
         fetchArticle('pubmed', idList[i], fileName)
 
-  
 if __name__== "__main__":
-  main()
+    terms = sys.argv
+    terms.pop(0)
+    term =  " ".join(terms)
+    main(term)
+
+
