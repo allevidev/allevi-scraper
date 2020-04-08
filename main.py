@@ -1,5 +1,5 @@
 from xml.dom import minidom
-import urllib2
+from urllib.request import urlopen
 import xmltodict
 import requests
 import re
@@ -8,8 +8,8 @@ import sys
 
 def fetchArticle(database, articleId, fileName):
     url = 'https://www.ncbi.nlm.nih.gov/' + database + '/' + articleId
-    r = requests.get(url)
-    page = xmltodict.parse(r.content)
+    r = urlopen(url)
+    page = xmltodict.parse(r.read().decode('utf-8'))
     content =  page['html']['body']['div']['div']['form']['div'][0]['div']
     for div in content:
         if  '@id' in div:
@@ -55,16 +55,16 @@ def fetchArticle(database, articleId, fileName):
                                                   email = ""
                                                   if len(match) > 0:
                                                       email = match[0]
-                                                  print authors[count] , ' ' , affl[int(sup[count]) - 1], ' ', email
-                                                  writer.writerow({'name': authors[count], 'affiliation': affl[int(sup[count]) - 1], 'email': email})
+                                                      print(authors[count] , ' ' , affl[int(sup[count]) - 1], ' ', email)
+                                                      writer.writerow({'name': authors[count], 'affiliation': affl[int(sup[count]) - 1], 'email': email})
                                         except:
                                             continue
                                         continue
 
 def fetchIdList(database, term, count):
     url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?' + 'db=' + database + '&term=' + term + '&retmax=' + str(count)
-    r = requests.get(url)
-    page = xmltodict.parse(r.content)
+    r = urlopen(url)
+    page = xmltodict.parse(r.read().decode('utf-8'))
     return page['eSearchResult']['IdList']['Id']
 
 def main(term):
